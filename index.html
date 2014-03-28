@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+<head>
+<title>StockTwits Search</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<link rel="stylesheet" type="text/css" href="css/reset.css">
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+<link rel="stylesheet" type="text/css" href="css/typeahead.css">
+<link rel="stylesheet" type="text/css" href="css/bootstrap-tokenfield.css">
+<link rel="stylesheet" type="text/css" href="css/screen.css">
+</head>
+<body class="condensed">
+<div class="header">
+	<div class="input-holder">
+		<input id="search" type="hidden" data-bind="value: query"/>
+		<input id="sssearch" type="text" data-bind="value: search, valueUpdate: 'afterkeydown'" placeholder="Search stocks, users, terms, and lists"/>
+		<span data-bind="if: queryIsEmpty" class="sssearch-helpers">
+			<i  class="fa fa-search"></i>
+		</span>
+		<span data-bind="ifnot: queryIsEmpty" class="sssearch-helpers">
+			<i  class="fa fa-times-circle isActionable"></i>
+		</span>
+
+	</div>
+</div>
+<div class="container">
+	<div class="sidebar">
+		<div class="filters" data-bind="css: {hidden: queryIsEmpty() == true}">
+				<div class="controlButton on isActionable" data-bind="css: {hidden: anySymbolsInInitialSearch() == true}">
+					<div class="controlHeader">
+						<div class="obj-left facet-title">
+							<i class="fa fa-dollar"></i>
+							<span class="txt-base-small">Filter by Symbols</span>
+						</div>
+	<!-- 					<i class="fa fa-sort-up obj-right"></i>
+						<i class="fa fa-sort-down obj-right"></i> -->
+						<div class="facet-subtitle">
+
+						</div>
+					</div>
+				</div>
+				<div class="controlContent" data-bind="css: {hidden: anySymbolsInInitialSearch() == true}">
+
+					<fieldset>
+
+
+					<div class="form-group">
+
+					  <div class="col-md-3">
+					  	<div class="btn-group-vertical" data-bind="foreach: symbolChoices">
+								<button class="btn btn-default btn-block" data-bind="css: { active: $data == $root.chosenSymbol() },
+										click: $root.goToSymbolChoice">
+									<i class="fa fa-check-square-o"></i>
+									<span data-bind="text: $data"></span>
+								</button>
+							</div>
+
+					    <div data-bind="css: { hidden: chosenSymbol() != 'Search stocks'}">
+								<div class="input-group">
+										<span class="input-group-addon">$</span>
+										<input id="addSymbol" name="addSymbol" class="aSearch typeahead symbols" placeholder="Add a symbol" type="text">
+										<div class="input-group-btn">
+											<button type="button" data-bind="click: addSymbol" class="btn btn-primary"><i class="fa fa-plus"></i></button>
+										</div>
+								</div>
+					    	<div data-bind="foreach: symbols">
+									<button class="btn btn-xs btn-danger cshtg" data-bind="click:$parent.removeSymbol, text: title, css: {hide : inInitialSearch}"></button>
+					    	</div>
+
+					    </div>
+					  </div>
+					</div>
+
+					</fieldset>
+
+				</div>
+
+				<div class="controlButton on isActionable" data-bind="css: {hidden: anyUsersInInitialSearch() == true}">
+					<div class="controlHeader">
+						<div class="obj-left facet-title">
+							<i class="fa fa-users"></i>
+							<span class="txt-base-small">Filter by Users</span>
+						</div>
+	<!-- 					<i class="fa fa-sort-up obj-right"></i>
+						<i class="fa fa-sort-down obj-right"></i> -->
+						<div class="facet-subtitle">
+
+						</div>
+					</div>
+				</div>
+				<div class="controlContent" data-bind="css: {hidden: anyUsersInInitialSearch() == true}">
+
+					<fieldset>
+
+					<!-- Select Basic -->
+					<div class="form-group">
+
+						<div class="col-md-3">
+							<div class="btn-group-vertical" data-bind="foreach: userChoices">
+								<button class="btn btn-default btn-block" data-bind="css: { active: $data == $root.chosenUser() },
+	                   click: $root.goToUserChoice">
+									<i class="fa fa-check-square-o"></i>
+									<span data-bind="text: $data"></span>
+								</button>
+							</div>
+
+							<div data-bind="css: { hidden: chosenUser() != 'Search users'}">
+
+								<div class="input-group">
+										<span class="input-group-addon">@</span>
+										<input id="addUser" class="aSearch typeahead users" placeholder="Add a user" type="text">
+										<div class="input-group-btn">
+											<button type="button" data-bind="click: addUser" class="btn btn-primary"><i class="fa fa-plus"></i></button>
+										</div>
+							  </div>
+								<div data-bind="foreach: users">
+									<button class="btn btn-xs btn-danger ttg" data-bind="click:$parent.removeUser, text: title, css: {hide : inInitialSearch}"></button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					</fieldset>
+
+				</div>
+				<div class="controlButton on isActionable">
+					<div class="controlHeader">
+						<div class="obj-left facet-title">
+							<i class="fa fa-quote-left"></i>
+							<span class="txt-base-small">Filter by Terms</span>
+						</div>
+	<!-- 					<i class="fa fa-sort-up obj-right"></i>
+						<i class="fa fa-sort-down obj-right"></i> -->
+						<div class="facet-subtitle">
+
+						</div>
+					</div>
+				</div>
+				<div class="controlContent">
+					<fieldset>
+
+					<!-- Select Basic -->
+					<div class="form-group">
+						<div class="col-md-3">
+							<div>
+								<div class="input-group">
+										<input id="addTerm" name="addTerm" class="aSearch" placeholder="Add a term" type="text">
+										<div class="input-group-btn">
+											<button type="button" data-bind="click: addTerm" class="btn btn-primary"><i class="fa fa-plus"></i></button>
+										</div>
+								</div>
+								<div>
+									<span data-bind="foreach: phrases">
+										<button class="btn btn-xs btn-danger hshtg" data-bind="click:$parent.removePhrase, text: title, css: {hide : inInitialSearch}"></button>
+									</span>
+									<span data-bind="foreach: terms">
+										<button class="btn btn-xs btn-danger hshtg" data-bind="click:$parent.removeTerm, text: title, css: {hide : inInitialSearch}"></button>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					</fieldset>
+				</div>
+
+				<div class="controlButton on isActionable">
+					<div class="controlHeader">
+						<div class="obj-left facet-title">
+							<i class="fa fa-umbrella"></i>
+							<span class="txt-base-small">Content</span>
+						</div>
+	<!-- 					<i class="fa fa-sort-up obj-right"></i>
+						<i class="fa fa-sort-down obj-right"></i> -->
+						<div class="facet-subtitle">
+
+						</div>
+					</div>
+				</div>
+				<div class="controlContent">
+
+					<fieldset>
+					<div class="form-group">
+						<div class="col-md-3">
+							<div class="btn-group-vertical" data-bind="foreach: contentChoices">
+							<button class="btn btn-default btn-block" data-bind="css: { active: $data == $root.chosenContent() },
+									click: $root.goToContentChoice">
+								<i class="fa fa-check-square-o"></i>
+								<span data-bind="text: $data"></span>
+							</button>
+						</div>
+					</div>
+					</fieldset>
+
+				</div>
+			</div>
+	</div>
+	<ul class="searchResults"></ul>
+
+<pre id="query" data-bind="css: {hide: queryIsEmpty() == true}"></pre>
+<!-- <div id="bradsAd" class="isActionable" data-bind="css: {hide: queryIsEmpty() == true}"></div> -->
+</div>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.2/handlebars.min.js"></script>
+<script src="js/elasticsearch.js"></script>
+<script src="js/typeahead.js"></script>
+<script src="js/twt-text.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

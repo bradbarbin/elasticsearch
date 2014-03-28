@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <script src="terms.js" charset="utf-8"></script>
+</head>
+<body>
+<ul>
+</ul>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script>
+$(function(){
+  var list = $('ul')
+  for(var i = 0; i<terms.length; i++){
+  if(
+      !/\d/.test(terms[i]) // no numbers
+      && terms[i].length > 5 //no short terms
+      && !/_+/.test(terms[i]) // no underscores
+      && !/http+/.test(terms[i]) //no http
+      && !/fuck+/.test(terms[i]) //and of course, no fucks
+  ) list.append('<li>'+terms[i]+'</li>');
+  }
+});
+</script>
+</body>
+</html>

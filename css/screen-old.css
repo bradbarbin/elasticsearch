@@ -1,0 +1,251 @@
+body{
+  background: #f2f2f2;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size:15px;
+}
+
+.header{
+  width: 100%;
+  height: 69px;
+  background: #34C29E;
+  position: absolute;
+  padding-top:8px;
+  transition: all 200ms ease-in;
+}
+
+.condensed .header{
+  height: 39px;
+  position: fixed;
+}
+
+.condensed .header .input-holder > input[type="text"]{
+  border:2px solid white;
+  padding-top:5px;
+  padding-bottom:5px;
+  font-size:13px;
+}
+
+.condensed .header .filters{
+  width: 314px;
+}
+
+.condensed .header .sssearch-helpers{
+  font-size: 15px;
+  top: 13px;
+}
+
+input:focus, input:active{
+  outline:none;
+}
+.input-holder{
+  padding:0;
+  margin:0 auto;
+  width:320px;
+}
+
+.input-holder > input[type="text"]{
+   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display: inline;
+    color:white;
+    font-size:15px;
+    width:280px;
+    border: 5px solid white;
+    -webkit-box-shadow:
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1);
+    -moz-box-shadow:
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1);
+    box-shadow:
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1);
+    padding: 15px;
+    background: rgba(255,255,255,0.2);
+    margin: 0;
+    text-overflow: ellipsis;
+    transition: all 200ms ease-in;
+}
+
+.input-holder > input[type="text"]:active, .input-holder > input[type="text"]:focus{
+  outline:none;
+  border: 5px solid #5fa2db;
+  background:white;
+  color:black;
+}
+
+
+.input-holder > input[type="text"]::-webkit-input-placeholder {
+   color: white;
+}
+
+.input-holder > input[type="text"]:-moz-placeholder { /* Firefox 18- */
+   color: white;
+}
+
+.input-holder > input[type="text"]::-moz-placeholder {  /* Firefox 19+ */
+   color: white;
+}
+
+.input-holder > input[type="text"]:-ms-input-placeholder {
+   color: white;
+}
+
+
+.input-holder > input[type="text"]:focus::-webkit-input-placeholder {
+   color: #999;
+}
+
+.input-holder > input[type="text"]:focus:-moz-placeholder { /* Firefox 18- */
+   color: #999;
+}
+
+.input-holder > input[type="text"]:focus::-moz-placeholder {  /* Firefox 19+ */
+   color: #999;
+}
+
+.input-holder > input[type="text"]:focus:-ms-input-placeholder {
+   color: #999;
+}
+
+input:focus + .sssearch-helpers, input:focus + .sssearch-helpers + .sssearch-helpers{
+  color: #999;
+}
+.sssearch-helpers{
+  position: absolute;
+  top: 23px;
+  right: 50%;
+  margin-right: -144px;
+  font-size: 22px;
+  color:white;
+  transition: all 200ms ease-in;
+}
+
+input:focus + .sssearch-helpers + .sssearch-helpers:hover{
+  color:black;
+}
+
+
+.filters{
+  color: #888;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.isActionable{
+  cursor: pointer;
+}
+
+.accordionButton{
+  background: white;
+  position: relative;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.accordionButton.on, .accordionContent{
+  background:#f2f2f2;
+  border-bottom:none;
+  border-left:1px solid #e5e5e5;
+  border-right:1px solid #e5e5e5;
+}
+
+.accordionContent{
+  border-bottom:1px solid #e5e5e5;
+  display:none;
+}
+
+.accordionButton.on + .accordionContent{
+  display: block;
+}
+
+.accordionHeader {
+padding: 9px 5px 9px 8px;
+color: #888;
+}
+
+.accordionHeader i{
+  margin-right:7px;
+  width:15px;
+}
+
+.facet-title {
+width: 100px;
+}
+
+.obj-left {
+margin-right: 10px;
+}
+
+.txt-base-small {
+font-size: 13px;
+}
+
+.accordionButton.on .fa-sort-down{
+  display: none;
+}
+
+.accordionButton.on .fa-sort-up{
+  display: block;
+}
+
+.accordionButton .fa-sort-up{
+  display:none;
+}
+
+.accordionHeader > .fa.obj-right{
+  position: absolute;
+  right: 10px;
+  top: 6px;
+}
+
+.facet-subtitle {
+  position: absolute;
+  top: 13px;
+  left: 110px;
+  font-size: 12px;
+  color: #3b88c3;
+  overflow: hidden;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 160px;
+}
+
+.clear{
+  font-size: 12px;
+  color: #3b88c3;
+}
+
+.accordionContent fieldset{
+  padding:0 20px;
+}
+
+.listlike:after {
+  content: ", ";
+  color:#999;
+}
+
+.listlike:last-child:after {
+content: "";
+}
+
+input.aSearch{
+  display: table-cell;
+  width: 191px;
+  padding: 5px 0 5px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  border:2px solid white;
+}
+
+.cashtag:before{
+  content: "$";
+}
+
+.attag:before{
+  content: "@";
+}
+
+.hashtag:before{
+  content: "#";
+}

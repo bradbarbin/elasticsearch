@@ -1,0 +1,95 @@
+.tt-dropdown-menu, .gist {
+    text-align: left;
+}
+html {
+    color: #333333;
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.2;
+}
+.title, .example-name {
+    font-family: Prociono;
+}
+p {
+    margin: 0 0 10px;
+}
+.title {
+    font-size: 64px;
+    margin: 20px 0 0;
+}
+.example {
+    padding: 30px 0;
+}
+.example-name {
+    font-size: 32px;
+    margin: 20px 0;
+}
+.demo {
+    margin: 50px 0;
+    position: relative;
+}
+.typeahead, .tt-query, .tt-hint {
+/*    border: 2px solid #CCCCCC;
+    border-radius: 8px 8px 8px 8px;
+    font-size: 24px;
+    height: 30px;
+    line-height: 30px;
+    outline: medium none;
+    padding: 8px 12px;
+    width: 396px;*/
+}
+.typeahead {
+    background-color: #FFFFFF;
+}
+.typeahead:focus {
+    border: 2px solid #357ebd;
+}
+.tt-query {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+}
+.tt-hint {
+    color: #999999;
+}
+.tt-dropdown-menu {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 3px;
+    padding: 8px 0;
+    width: 275px;
+}
+.tt-suggestion {
+    font-size: 16px;
+    line-height: 18px;
+    padding: 3px 10px;
+}
+.tt-suggestion.tt-cursor {
+    background-color: #428bca;
+    color: #FFFFFF;
+}
+.tt-suggestion p {
+    margin: 0;
+}
+
+.tt-suggestion span.exchange{
+    float: right;
+    font-size:11px;
+    font-style: italic;
+    color:#999;
+}
+
+.tt-suggestion.tt-cursor span.exchange{
+    color:white;
+}
+
+.avatar{
+  height:50px;
+  width:50px;
+}
+
+.empty-message{
+  font-size:12px;
+  background:white;
+  padding:6px;
+}
