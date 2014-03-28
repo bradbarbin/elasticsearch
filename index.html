@@ -185,13 +185,15 @@
 					<div class="form-group">
 						<div class="col-md-3">
 							<div class="btn-group-vertical" data-bind="foreach: contentChoices">
-							<button class="btn btn-default btn-block" data-bind="css: { active: $data == $root.chosenContent() },
-									click: $root.goToContentChoice">
-								<i class="fa fa-check-square-o"></i>
-								<span data-bind="text: $data"></span>
-							</button>
+								<button class="btn btn-default btn-block" data-bind="css: { active: $data == $root.chosenContent() },
+										click: $root.goToContentChoice">
+									<i class="fa fa-check-square-o"></i>
+									<span data-bind="text: $data"></span>
+								</button>
+							</div>
+							<hr/>
+							<button class="btn btn-danger btn-block" data-bind="click: removeAllFilters, css:{ disabled: hasNoFilters() }">Remove all filters</button>
 						</div>
-					</div>
 					</fieldset>
 
 				</div>
@@ -199,8 +201,8 @@
 	</div>
 	<ul class="searchResults"></ul>
 
-<pre id="query" data-bind="css: {hide: queryIsEmpty() == true}"></pre>
-<!-- <div id="bradsAd" class="isActionable" data-bind="css: {hide: queryIsEmpty() == true}"></div> -->
+<!-- <pre id="query" data-bind="css: {hide: queryIsEmpty() == true}"></pre> -->
+<div id="bradsAd" class="isActionable" data-bind="css: {hide: queryIsEmpty() == true}, text: summary()"></div>
 </div>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>

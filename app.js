@@ -22,25 +22,23 @@ var Autocomplete = new Bloodhound({
 
            for(var i = 0; i < parsedResponse.length; i++) {
               var src = parsedResponse[i].payload;
-
                var datum = {};
-
                datum.id = src.id
-               if(src.symbol){
+               if(src.type == "symbol"){
                  datum.symbol = true;
                  datum.label = src.symbol;
                  datum.value = "$" + datum.label;
                  datum.title = src.title;
                  datum.exchange = src.exchange;
                }
-               else if(src.user){
+               else if(src.type == "user"){
                  datum.user = true;
                  datum.label = src.username;
                  datum.value = "@" + datum.label;
                  datum.exchange = src.exchange;
                  datum.name = src.name;
+                 datum.avatar = src.avatar_url;
                }
-              console.log(datum);
               dataSet.push(datum);
            }
 
@@ -394,6 +392,16 @@ function AdvancedSearch(){
     ok.updateQuery(newQuery);
   }
 
+  ok.hasNoFilters = ko.computed(function(){
+
+    return ok.query() == ok.$hiddenForm.val();
+  })
+
+  ok.removeAllFilters = function(){
+    var newQuery = ok.$hiddenForm.val();
+    ok.updateQuery(newQuery);
+  }
+
   ok.clearHints = function(){
     $('input.tt-hint').val("");
   }
@@ -498,6 +506,15 @@ function AdvancedSearch(){
     }
 
     return _filters;
+  });
+
+  ok.summary = ko.computed(function(){
+    var S = "Results for: ";
+        S += ok.$hiddenForm.val() + " ";
+        if(!ok.hasNoFilters()){
+            S += "filtered by: ";
+        }
+        return S;
   });
 
   ok.newSearch = function(){
@@ -693,7 +710,7 @@ function AdvancedSearch(){
           source: Autocomplete.ttAdapter(),
           hint: true,
           templates: {
-              suggestion: Handlebars.compile('{{#if symbol}}<p data-type="symbol"><strong>{{label}}</strong><br><small>{{title}}</small><span class="exchange">{{exchange}}</span></p>{{else}}{{#if user}}<p><img class="avatar"> <strong>{{label}}</strong></p>{{/if}}{{/if}}')
+              suggestion: Handlebars.compile('{{#if symbol}}<p data-type="symbol"><strong>{{label}}</strong><br><small>{{title}}</small><span class="exchange">{{exchange}}</span></p>{{else}}{{#if user}}<p><img class="avatar" src="{{avatar}}"> <strong>{{label}}</strong></p>{{/if}}{{/if}}')
           }
     }).on('typeahead:selected', function($e) {
         var what = $(this).val().trim();
