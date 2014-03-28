@@ -15,43 +15,35 @@ var Autocomplete = new Bloodhound({
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
-        url: ES_URL + '/autocomplete-test/_suggest',
-        ajax: {
-          beforeSend: function(xhr, settings){
-            settings.type = 'POST';
-            settings.hasContent = true;
-            settings.data = JSON.stringify({
-                                "suggest" : {
-                                    "text" : $('#sssearch').val(),
-                                    "completion" : {
-                                        "field" : "suggest",
-                                        "size": 10
-                                    }
-                                }
-            });
-            return true;
-          }
-
-        },
+        url: ES_URL + '/autocomplete-test/_suggest?source={"suggest":{"text":"%QUERY","completion":{"field":"suggest","size":10}}}',
         filter: function(Response) {
            var dataSet = [];
            var parsedResponse = Response.suggest[0].options;
 
            for(var i = 0; i < parsedResponse.length; i++) {
-              var receivedData = parsedResponse[i];
-              console.log(receivedData);
-              // var src = receivedData['_source'];
-              // src.id = receivedData['_id'];
-              //
-              // var datum = {};
-              //
-              // datum.label = src.symbol;
-              // datum.value = "$" + datum.label;
-              // datum.id = src.id;
-              // datum.title = src.title;
-              // datum.exchange = src.exchange;
-              // dataSet.push(datum);
+              var src = parsedResponse[i].payload;
+
+               var datum = {};
+
+               datum.id = src.id
+               if(src.symbol){
+                 datum.symbol = true;
+                 datum.label = src.symbol;
+                 datum.value = "$" + datum.label;
+                 datum.title = src.title;
+                 datum.exchange = src.exchange;
+               }
+               else if(src.user){
+                 datum.user = true;
+                 datum.label = src.username;
+                 datum.value = "@" + datum.label;
+                 datum.exchange = src.exchange;
+                 datum.name = src.name;
+               }
+              console.log(datum);
+              dataSet.push(datum);
            }
+
            return dataSet;
          }
     }
@@ -123,6 +115,7 @@ var userAutocomplete = new Bloodhound({
 // initialize the bloodhound suggestion engine
 symbolAutocomplete.initialize();
 userAutocomplete.initialize();
+Autocomplete.initialize();
 
 function AdvancedSearch(){
   var ok = this;
@@ -697,19 +690,11 @@ function AdvancedSearch(){
   ok.$hiddenForm.typeahead( null,
     {
           displayKey: 'value',
-          source: symbolAutocomplete.ttAdapter(),
+          source: Autocomplete.ttAdapter(),
           hint: true,
           templates: {
-              suggestion: Handlebars.compile('<p data-type="symbol"><strong>{{label}}</strong><br><small>{{title}}</small><span class="exchange">{{exchange}}</span></p>')
+              suggestion: Handlebars.compile('{{#if symbol}}<p data-type="symbol"><strong>{{label}}</strong><br><small>{{title}}</small><span class="exchange">{{exchange}}</span></p>{{else}}{{#if user}}<p><img class="avatar"> <strong>{{label}}</strong></p>{{/if}}{{/if}}')
           }
-    },
-    {
-        displayKey: 'value',
-        source: userAutocomplete.ttAdapter(),
-        highlight: true,
-        templates: {
-            suggestion: Handlebars.compile('<p><img class="avatar" src="{{avatar}}"> <strong>{{label}}</strong></p>')
-        }
     }).on('typeahead:selected', function($e) {
         var what = $(this).val().trim();
         ok.updateQuery(what);
