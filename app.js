@@ -9,7 +9,7 @@ var ES_ENDPOINT = '23.253.39.42:9200',
 });
 
 
-var Autocomplete = new Bloodhound({
+var ES_Autocomplete = new Bloodhound({
     datumTokenizer: function (d) {
         return Bloodhound.tokenizers.whitespace(d.value);
     },
@@ -49,71 +49,68 @@ var Autocomplete = new Bloodhound({
 
 
 // instantiate the symbol suggestion engine
-var symbolAutocomplete = new Bloodhound({
+var ES_SymbolAutocomplete = new Bloodhound({
     datumTokenizer: function (d) {
         return Bloodhound.tokenizers.whitespace(d.value);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
-        url: ES_URL + '/symbols/_search?q=symbol:%QUERY* title:%QUERY*',
-        filter: function(Response) {
-           var dataSet = [];
-           var parsedResponse = Response.hits.hits;
+        url: ES_URL + '/autocomplete-test/_suggest?source={"suggest":{"text":"%QUERY","completion":{"field":"suggest","size":10}}}',
+         filter: function(Response) {
+            var dataSet = [];
+            var parsedResponse = Response.suggest[0].options;
 
-           for(var i = 0; i < parsedResponse.length; i++) {
-              var receivedData = parsedResponse[i];
-              var src = receivedData['_source'];
-              src.id = receivedData['_id'];
+            for(var i = 0; i < parsedResponse.length; i++) {
+               var src = parsedResponse[i].payload;
+                var datum = {};
+                datum.id = src.id
 
-              var datum = {};
+                datum.symbol = true;
+                datum.label = src.symbol;
+                datum.value = "$" + datum.label;
+                datum.title = src.title;
+                datum.exchange = src.exchange;
 
-              datum.label = src.symbol;
-              datum.value = "$" + datum.label;
-              datum.id = src.id;
-              datum.title = src.title;
-              datum.exchange = src.exchange;
-              dataSet.push(datum);
-           }
-           return dataSet;
-         }
+                dataSet.push(datum);
+            }
+
+            return dataSet;
+          }
     }
 });
 
 // instantiate the user suggestion engine
-var userAutocomplete = new Bloodhound({
+var ES_UserAutocomplete = new Bloodhound({
     datumTokenizer: function (d) {
         return Bloodhound.tokenizers.whitespace(d.value);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
-        url: ES_URL + '/users/user-type/_search?q=username:%QUERY*',
-        filter: function(Response) {
-           var dataSet = [];
-           var parsedResponse = Response.hits.hits;
+        url: ES_URL + '/autocomplete-users/_suggest?source={"suggest":{"text":"%QUERY","completion":{"field":"suggest","size":10}}}',
+         filter: function(Response) {
+            var dataSet = [];
+            var parsedResponse = Response.suggest[0].options;
 
-           for(var i = 0; i < parsedResponse.length; i++) {
-              var receivedData = parsedResponse[i];
-              var src = receivedData['_source'];
-              src.id = receivedData['_id'];
-
-              var datum = {};
-
-              datum.label = src.username;
-              datum.value = "@" + datum.label;
-              datum.id = src.id;
-              datum.avatar = src.avatar_url;
-              datum.name = src.name || "";
-              dataSet.push(datum);
-           }
-           return dataSet;
-         }
+            for(var i = 0; i < parsedResponse.length; i++) {
+               var src = parsedResponse[i].payload;
+                var datum = {};
+                datum.id = src.id
+                datum.label = src.username;
+                datum.value = "@" + datum.label;
+                datum.exchange = src.exchange;
+                datum.name = src.name;
+                datum.avatar = src.avatar_url;
+                dataSet.push(datum);
+            }
+            return dataSet;
+          }
     }
 });
 
 // initialize the bloodhound suggestion engine
-symbolAutocomplete.initialize();
-userAutocomplete.initialize();
-Autocomplete.initialize();
+ES_SymbolAutocomplete.initialize();
+ES_UserAutocomplete.initialize();
+ES_Autocomplete.initialize();
 
 function AdvancedSearch(){
   var ok = this;
@@ -388,18 +385,16 @@ function AdvancedSearch(){
   }
 
   ok.removePhrase = function(){
-    var newQuery = ok.$q.val().replace('"' + this.title + '"', '').trim();
+    var newQuery = ok.$q.val().replace(this.title, '').trim();
     ok.updateQuery(newQuery);
   }
-
-  ok.hasNoFilters = ko.computed(function(){
-
-    return ok.query() == ok.$hiddenForm.val();
-  })
 
   ok.removeAllFilters = function(){
     var newQuery = ok.$hiddenForm.val();
     ok.updateQuery(newQuery);
+    ok.chosenSymbol('All stocks');
+    ok.chosenUser('All users');
+    ok.chosenContent('All');
   }
 
   ok.clearHints = function(){
@@ -508,13 +503,70 @@ function AdvancedSearch(){
     return _filters;
   });
 
+  ok.hasNoFilters = ko.computed(function(){
+    return (ok.query() == ok.$hiddenForm.val() && ok.filters().length == 0);
+  });
+
   ok.summary = ko.computed(function(){
-    var S = "Results for: ";
-        S += ok.$hiddenForm.val() + " ";
-        if(!ok.hasNoFilters()){
-            S += "filtered by: ";
+    var S = "Showing results for ";
+    var hasSymbols = hasUsers = hasTerms = hasPhrases = hasFilters = false;
+    var w = x = y = z = 0;
+
+    S += ok.search() + " ";
+    if(!ok.hasNoFilters()){
+        S += "filtered by ";
+        if(ok.chosenSymbol() == 'Stocks I follow'){
+          S += "stocks I follow ";
+          hasUsers = true;
         }
-        return S;
+        if(!ok.anySymbols()){
+          for(w; w<ok.symbols().length; w++){
+            if(!ok.symbols()[w].inInitialSearch){
+              S += "$" + ok.symbols()[w].title + ", ";
+              hasSymbols = true;
+            }
+          }
+        }
+        if(ok.chosenUser() == 'Users I follow'){
+          if(hasSymbols) S += 'and ';
+          S += "users I follow ";
+          hasUsers = true;
+        }
+        if(!ok.anyUsers()){
+          for(x; x<ok.users().length; x++){
+            if(!ok.users()[x].inInitialSearch){
+              if(!hasUsers && hasSymbols) S += 'and ';
+              S += "@" + ok.users()[x].title + ", ";
+              hasUsers = true;
+            }
+          }
+        }
+        if(!ok.anyTerms()){
+          for(y; y<ok.terms().length; y++){
+            if(!ok.terms()[y].inInitialSearch){
+              if(!hasTerms && (hasUsers || hasSymbols)) S += 'and ';
+              S += ok.terms()[y].title + ", ";
+              hasTerms = true;
+            }
+          }
+        }
+        if(ok.phrases().length > 0){
+          for(z; z<ok.phrases().length; z++){
+            if(!ok.phrases()[z].inInitialSearch){
+              if((!hasTerms && !hasPhrases) && (hasUsers || hasSymbols)) S += 'and ';
+              S += ok.phrases()[z].title + ", ";
+              hasPhrases = true;
+            }
+          }
+        }
+        if(ok.chosenContent() && ok.chosenContent() != 'All'){
+          if(hasPhrases || hasTerms || hasUsers || hasSymbols) S += 'and ';
+          if(ok.chosenContent() != 'Excluding replies') S += 'only showing ';
+          S += ok.chosenContent().toLowerCase();
+        }
+        //TODO: remove tailing comma from S
+    }
+    return S;
   });
 
   ok.newSearch = function(){
@@ -665,7 +717,7 @@ function AdvancedSearch(){
 
   $('.typeahead.users').typeahead(null, {
       displayKey: 'label',
-      source: userAutocomplete.ttAdapter(),
+      source: ES_UserAutocomplete.ttAdapter(),
       highlight: true,
       templates: {
       empty: [
@@ -686,7 +738,7 @@ function AdvancedSearch(){
 
   $('.typeahead.symbols').typeahead(null, {
       displayKey: 'label',
-      source: symbolAutocomplete.ttAdapter(),
+      source: ES_SymbolAutocomplete.ttAdapter(),
       highlight: true,
       templates: {
       empty: [
@@ -707,7 +759,7 @@ function AdvancedSearch(){
   ok.$hiddenForm.typeahead( null,
     {
           displayKey: 'value',
-          source: Autocomplete.ttAdapter(),
+          source: ES_Autocomplete.ttAdapter(),
           hint: true,
           templates: {
               suggestion: Handlebars.compile('{{#if symbol}}<p data-type="symbol"><strong>{{label}}</strong><br><small>{{title}}</small><span class="exchange">{{exchange}}</span></p>{{else}}{{#if user}}<p><img class="avatar" src="{{avatar}}"> <strong>{{label}}</strong></p>{{/if}}{{/if}}')
@@ -736,6 +788,6 @@ function AdvancedSearch(){
 ko.applyBindings(new AdvancedSearch());
 
 /* DO NOT USE */
-$(document).on('click', '#bradsAd', function(){
-  window.location.href = 'http://theworstdrug.com';
-});
+// $(document).on('click', '#bradsAd', function(){
+//   window.location.href = 'http://theworstdrug.com';
+// });
