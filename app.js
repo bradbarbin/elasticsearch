@@ -3,6 +3,7 @@ var USER_ID = 5; // = howardlindzon
                  //   and for Users I follow
 
 var ES_ENDPOINT = '23.253.39.42:9200',
+    // ES_URL = document.location.protocol + '//' + ES_ENDPOINT,
     ES_URL = 'http://' + ES_ENDPOINT,
     ES_CLIENT = elasticsearch.Client({
       host: ES_ENDPOINT
@@ -564,8 +565,9 @@ function AdvancedSearch(){
           if(ok.chosenContent() != 'Excluding replies') S += 'only showing ';
           S += ok.chosenContent().toLowerCase();
         }
-        //TODO: remove tailing comma from S
     }
+    S = S.trim();
+    if(S.substring(S.length-1) == ',') S = S.substring(0, S.length-1);
     return S;
   });
 
